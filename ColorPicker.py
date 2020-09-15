@@ -1,11 +1,11 @@
 """
-========================
-Visualizing named colors
-========================
+===========================
+Color Picker and Visualizer
+===========================
 
-Simple plot example with the named colors and its visual representation.
-Left Mouse Button on color copies its name to the clipboard
-Right Button: copies its HEX value (double right click copies rgb values as a string)
+Simple matplotlib plot example with named colors and its visual representation.
+Left mouse button on color copies its name to the clipboard
+Right mouse button copies its HEX value (double right click copies rgb values as a string)
 
 """
 
@@ -14,11 +14,12 @@ from matplotlib import colors as mcolors
 import matplotlib as mpl
 import pyperclip
 
-class ColorPicker():
+
+class ColorPicker:
 
     def __init__(self):
 
-        #remove toolbars
+        # remove toolbars
         mpl.rcParams['toolbar'] = 'None'
 
         # get colors from matplotlib module
@@ -48,46 +49,41 @@ class ColorPicker():
         # draw the grid
         self.draw_color_grid()
 
-
     def draw_color_grid(self):
         # Get height and width
-        X, Y = self.fig.get_dpi() * self.fig.get_size_inches()
-        h = Y / (self.nrows + 1)
-        w = X / self.ncols
+        x, y = self.fig.get_dpi() * self.fig.get_size_inches()
+        h = y / (self.nrows + 1)
+        w = x / self.ncols
 
-        #iterate through sorted names list
+        # iterate through sorted names list
         for i, name in enumerate(self.sorted_names):
             col = i % self.ncols
             row = i // self.ncols
-            y = Y - (row * h) - h
+            y_cord = y - (row * h) - h
 
             xi_line = w * (col + 0.05)
             xf_line = w * (col + 0.25)
             xi_text = w * (col + 0.3)
 
-            self.ax.text(xi_text, y, name, fontsize=(h * 0.8),
-                    horizontalalignment='left',
-                    verticalalignment='center')
+            self.ax.text(xi_text, y_cord, name, fontsize=(h * 0.8),
+                         horizontalalignment='left', verticalalignment='center')
 
-            self.ax.hlines(y + h * 0.1, xi_line, xf_line,
-                      color=self.colors[name], linewidth=(h * 0.6))
+            self.ax.hlines(y_cord + h * 0.1, xi_line, xf_line, color=self.colors[name], linewidth=(h * 0.6))
 
             # update dictionary that will be queried by the mouse events in order to get hex and rgb values
-            self.color_cords[name] = (int(xi_text), int(y+h))
+            self.color_cords[name] = (int(xi_text), int(y_cord+h))
 
-        self.ax.set_xlim(0, X)
-        self.ax.set_ylim(0, Y)
+        self.ax.set_xlim(0, x)
+        self.ax.set_ylim(0, y)
         self.ax.set_axis_off()
 
-        self.fig.subplots_adjust(left=0, right=1,
-                            top=1, bottom=0,
-                            hspace=0, wspace=0)
+        self.fig.subplots_adjust(left=0, right=1, top=1, bottom=0, hspace=0, wspace=0)
         plt.show()
 
-    # The mouse event button self.fig.canvas.mpl_connect('button_press_event', SELF) calls SELF (the main class: ColorPicker)
+    # The mouse event button "mpl_connect('button_press_event', SELF)" calls SELF (the main class: ColorPicker)
     # as the class is already instantiated __call__ is called instead of __init__
     def __call__(self, event):
-        print(event)
+        # print(event)
         for color in self.color_cords:
             if abs(self.color_cords[color][0] - event.xdata) < 50 \
                     and abs(self.color_cords[color][1] - event.ydata - 10) < 5:
@@ -96,11 +92,13 @@ class ColorPicker():
                     output = color
                 elif event.button == 3:
                     if event.dblclick == 1:
-                        output = str((int(mcolors.to_rgb(color)[0]*255), int(mcolors.to_rgb(color)[1]*255), int(mcolors.to_rgb(color)[2]*255)))
+                        output = str((int(mcolors.to_rgb(color)[0]*255),
+                                      int(mcolors.to_rgb(color)[1]*255), int(mcolors.to_rgb(color)[2]*255)))
                     elif event.dblclick == 0:
                         output = mcolors.to_hex(color)
                 print(output)
                 pyperclip.copy(output)
+
 
 if __name__ == '__main__':
     picker = ColorPicker()
